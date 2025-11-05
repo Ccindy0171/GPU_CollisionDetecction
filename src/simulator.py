@@ -187,6 +187,7 @@ class PhysicsSimulator:
                     self.bodies.radii,
                     self.grid.cell_starts,
                     self.grid.cell_ends,
+                    self.sorted_indices,
                     self.grid.resolution,
                     np.float32(self.grid.cell_size),
                     self.grid.world_min,

@@ -2,6 +2,9 @@
 """
 Simplest head-on collision test
 Two balls moving towards each other with no gravity
+
+This is a headless physics validation test (no visualization).
+Run with: python tests/test_01_head_on.py
 """
 
 import sys
@@ -11,12 +14,10 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import numpy as np
 import cupy as cp
 from src.simulator import PhysicsSimulator
-from src.visualizer import RealtimeVisualizer, VideoExporter
-import colorsys
 
 def main():
     print("=" * 70)
-    print("HEAD-ON COLLISION TEST - Two Balls")
+    print("TEST 01: HEAD-ON COLLISION - Two Balls")
     print("=" * 70)
     
     # Create simulator with 2 balls, NO GRAVITY
@@ -57,25 +58,11 @@ def main():
     sim.bodies.masses[:] = cp.asarray(masses)
     sim.bodies.restitutions[:] = cp.asarray(restitutions)
     
-    # Colors: red and blue
-    colors = np.array([
-        [1.0, 0.0, 0.0],  # Red
-        [0.0, 0.0, 1.0],  # Blue
-    ], dtype=np.float32)
-    
     print(f"\nInitial state:")
     print(f"  Ball 1: pos={positions[0]}, vel={velocities[0]}")
     print(f"  Ball 2: pos={positions[1]}, vel={velocities[1]}")
     print(f"  Distance: {np.linalg.norm(positions[1] - positions[0]):.3f}m")
     print(f"  Time to collision: ~{(np.linalg.norm(positions[1] - positions[0]) - 0.6) / 10:.2f}s")
-    
-    # Create visualizer
-    world_bounds = ((-5, -5, -5), (5, 5, 5))
-    vis = RealtimeVisualizer(world_bounds)
-    
-    # Create video
-    output_path = os.path.join(os.path.dirname(__file__), '..', 'output', 'head_on_collision.mp4')
-    video = VideoExporter(output_path, fps=60, resolution=(1280, 720))
     
     # Run simulation
     total_frames = 180  # 3 seconds
@@ -110,20 +97,6 @@ def main():
             print(f"  Penetration: {penetration:.4f}m")
             print(f"  Ball 1: pos={pos[0]}, vel={vel[0]}")
             print(f"  Ball 2: pos={pos[1]}, vel={vel[1]}")
-        
-        # Update visualization
-        info = f"Frame: {frame}/{total_frames}\n"
-        info += f"Time: {frame/60:.2f}s\n"
-        info += f"Distance: {dist:.3f}m\n"
-        info += f"Min Dist: {min_dist:.3f}m\n"
-        if penetration > 0:
-            info += f"Penetration: {penetration:.4f}m\n"
-        info += f"Collisions: {stats['num_collisions']}\n"
-        info += f"Ball 1 vel: [{vel[0, 0]:+.2f}, {vel[0, 1]:+.2f}, {vel[0, 2]:+.2f}]\n"
-        info += f"Ball 2 vel: [{vel[1, 0]:+.2f}, {vel[1, 1]:+.2f}, {vel[1, 2]:+.2f}]"
-        
-        vis.update(pos, colors=colors, radii=radii, info_text=info)
-        video.add_frame_from_matplotlib(vis.fig)
         
         # Print key frames
         if frame % 30 == 0 or stats['num_collisions'] > 0:
@@ -179,12 +152,6 @@ def main():
         if max_penetration >= 0.1:
             print(f"  - Excessive penetration: {max_penetration:.4f}m")
     print("=" * 70)
-    
-    # Close
-    video.release()
-    vis.close()
-    
-    print(f"\nVideo saved to: {output_path}")
 
 if __name__ == "__main__":
     main()

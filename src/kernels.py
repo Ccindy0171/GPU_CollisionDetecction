@@ -87,6 +87,7 @@ void broad_phase_collision(
     const float* radii,             // [N] object radii
     const int* cell_starts,         // [total_cells] cell start indices
     const int* cell_ends,           // [total_cells] cell end indices
+    const int* sorted_indices,      // [N] sorted object indices
     const int* resolution,          // [3] grid resolution
     float cell_size,                // grid cell size
     const float* world_min,         // [3] world space minimum bounds
@@ -135,7 +136,10 @@ void broad_phase_collision(
                 if (start < 0 || end < 0) continue;
                 
                 // Iterate through all objects in this cell
-                for (int j = start; j < end; j++) {
+                for (int sorted_j = start; sorted_j < end; sorted_j++) {
+                    // Get the actual object index from sorted array
+                    int j = sorted_indices[sorted_j];
+                    
                     // Avoid duplicate detection and self-collision
                     if (j <= idx) continue;
                     

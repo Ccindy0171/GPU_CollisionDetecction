@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 """
 Test 02: Static Overlapping Balls
+
 Place multiple balls in overlapping positions
 Check if collision response can separate them
+
+This is a headless physics validation test (no visualization).
+Run with: python tests/test_02_static_overlap.py
 """
 
 import sys
@@ -12,8 +16,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import numpy as np
 import cupy as cp
 from src.simulator import PhysicsSimulator
-from src.visualizer import RealtimeVisualizer, VideoExporter
-import colorsys
 
 def main():
     print("=" * 70)
@@ -57,13 +59,6 @@ def main():
     sim.bodies.masses[:] = cp.asarray(masses)
     sim.bodies.restitutions[:] = cp.asarray(restitutions)
     
-    # Colors: different for each ball
-    colors = np.zeros((num_objects, 3), dtype=np.float32)
-    for i in range(num_objects):
-        h = i / num_objects
-        rgb = colorsys.hsv_to_rgb(h, 0.8, 0.9)
-        colors[i] = rgb
-    
     print(f"\nInitial overlaps:")
     for i in range(num_objects):
         for j in range(i+1, num_objects):
@@ -72,14 +67,6 @@ def main():
             overlap = max(0, min_dist - dist)
             if overlap > 0:
                 print(f"  Ball {i} <-> Ball {j}: dist={dist:.3f}m, overlap={overlap:.3f}m")
-    
-    # Create visualizer
-    world_bounds = ((-5, -5, -5), (5, 5, 5))
-    vis = RealtimeVisualizer(world_bounds)
-    
-    # Create video
-    output_path = os.path.join(os.path.dirname(__file__), '..', 'output', 'static_overlap_test.mp4')
-    video = VideoExporter(output_path, fps=60, resolution=(1280, 720))
     
     # Run simulation
     total_frames = 300  # 5 seconds
@@ -112,23 +99,6 @@ def main():
                     max_overlap = max(max_overlap, overlap)
         
         overlap_history.append((num_overlaps, max_overlap, total_overlap))
-        
-        # Update visualization
-        info = f"Frame: {frame}/{total_frames}\n"
-        info += f"Time: {frame/60:.2f}s\n"
-        info += f"Overlapping pairs: {num_overlaps}\n"
-        if num_overlaps > 0:
-            info += f"Max overlap: {max_overlap:.4f}m\n"
-            info += f"Total overlap: {total_overlap:.4f}m\n"
-        info += f"Collisions detected: {stats['num_collisions']}\n"
-        
-        # Show velocity magnitudes
-        for i in range(num_objects):
-            vmag = np.linalg.norm(vel[i])
-            info += f"Ball {i} |v|: {vmag:.3f} m/s\n"
-        
-        vis.update(pos, colors=colors, radii=radii, info_text=info)
-        video.add_frame_from_matplotlib(vis.fig)
         
         # Print progress
         if frame % 30 == 0:
@@ -169,12 +139,6 @@ def main():
         print("✗✗✗ TEST FAILED ✗✗✗")
         print("Collision response did not resolve overlaps!")
     print("=" * 70)
-    
-    # Close
-    video.release()
-    vis.close()
-    
-    print(f"\nVideo saved to: {output_path}")
 
 if __name__ == "__main__":
     main()

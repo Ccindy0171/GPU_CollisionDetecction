@@ -11,8 +11,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import numpy as np
 import cupy as cp
 from src.simulator import PhysicsSimulator
-from src.visualizer import RealtimeVisualizer, VideoExporter
-import colorsys
 
 def main():
     print("=" * 70)
@@ -60,11 +58,6 @@ def main():
     sim.bodies.restitutions[:] = cp.asarray(restitutions)
     
     # Colors: rainbow
-    colors = np.zeros((num_objects, 3), dtype=np.float32)
-    for i in range(num_objects):
-        h = i / num_objects
-        rgb = colorsys.hsv_to_rgb(h, 0.8, 0.9)
-        colors[i] = rgb
     
     print(f"\nInitial positions:")
     for i in range(num_objects):
@@ -72,11 +65,9 @@ def main():
     
     # Create visualizer
     world_bounds = ((-5, 0, -5), (5, 10, 5))
-    vis = RealtimeVisualizer(world_bounds)
     
     # Create video
     output_path = os.path.join(os.path.dirname(__file__), '..', 'output', 'falling_balls_test.mp4')
-    video = VideoExporter(output_path, fps=60, resolution=(1280, 720))
     
     # Run simulation
     total_frames = 300  # 5 seconds
@@ -125,8 +116,6 @@ def main():
             info += f"Max penetration: {max_penetration:.4f}m\n"
         info += f"Height range: {min_y:.2f} - {max_y:.2f}m"
         
-        vis.update(pos, colors=colors, radii=radii, info_text=info)
-        video.add_frame_from_matplotlib(vis.fig)
         
         # Print progress
         if frame % 30 == 0:
@@ -201,10 +190,7 @@ def main():
     print("=" * 70)
     
     # Close
-    video.release()
-    vis.close()
     
-    print(f"\nVideo saved to: {output_path}")
 
 if __name__ == "__main__":
     main()

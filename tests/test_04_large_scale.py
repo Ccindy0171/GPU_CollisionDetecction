@@ -11,8 +11,6 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 import numpy as np
 import cupy as cp
 from src.simulator import PhysicsSimulator
-from src.visualizer import RealtimeVisualizer, VideoExporter
-import colorsys
 
 def main():
     print("=" * 70)
@@ -85,19 +83,12 @@ def main():
     sim.bodies.restitutions[:] = cp.asarray(restitutions)
     
     # Colors
-    colors = np.zeros((num_objects, 3), dtype=np.float32)
-    for i in range(num_objects):
-        h = (i / num_objects + 0.1) % 1.0
-        rgb = colorsys.hsv_to_rgb(h, 0.7, 0.9)
-        colors[i] = rgb
     
     # Create visualizer
     world_bounds = ((-10, 0, -10), (10, 20, 10))
-    vis = RealtimeVisualizer(world_bounds)
     
     # Create video
     output_path = os.path.join(os.path.dirname(__file__), '..', 'output', 'large_scale_test.mp4')
-    video = VideoExporter(output_path, fps=60, resolution=(1280, 720))
     
     # Run simulation
     total_frames = 600  # 10 seconds
@@ -150,8 +141,6 @@ def main():
             info += f"Height: {min_y:.1f} - {max_y:.1f}m\n"
             info += f"FPS: {1000.0/stats['total_time']:.0f}"
             
-            vis.update(pos, colors=colors, radii=radii, info_text=info)
-            video.add_frame_from_matplotlib(vis.fig)
         
         # Print progress
         if frame % 60 == 0:
@@ -205,10 +194,7 @@ def main():
     print("=" * 70)
     
     # Close
-    video.release()
-    vis.close()
     
-    print(f"\nVideo saved to: {output_path}")
 
 if __name__ == "__main__":
     main()
