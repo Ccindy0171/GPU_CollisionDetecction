@@ -173,21 +173,21 @@ def check_opengl():
         
         # Try to import GL, GLU, GLUT
         try:
-            from OpenGL.GL import *
+            import OpenGL.GL
             print("✓ OpenGL.GL available")
         except Exception as e:
             print(f"❌ OpenGL.GL import failed: {e}")
             return False
         
         try:
-            from OpenGL.GLU import *
+            import OpenGL.GLU
             print("✓ OpenGL.GLU available")
         except Exception as e:
             print(f"❌ OpenGL.GLU import failed: {e}")
             return False
         
         try:
-            from OpenGL.GLUT import *
+            import OpenGL.GLUT
             print("✓ OpenGL.GLUT available")
         except Exception as e:
             print(f"⚠  OpenGL.GLUT import failed: {e}")
