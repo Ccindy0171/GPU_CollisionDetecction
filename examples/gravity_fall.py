@@ -29,12 +29,12 @@ def main():
     # ========================================================================
     # Configuration
     # ========================================================================
-    NUM_OBJECTS = 100           # Number of balls
+    NUM_OBJECTS = 150           # Number of balls
     # WORLD_BOUNDS = ((-20, 0, -20), (20, 40, 20))  # World boundaries
     WORLD_BOUNDS = ((-4, 0, -4), (4, 8, 4))  # World boundaries
     CELL_SIZE = 1.0             # Grid cell size (reduced for better collision detection)
-    NUM_FRAMES = 650            # Total frames (@ 60fps)
-    RECORD_VIDEO = True         # Record video
+    NUM_FRAMES = 480            # Total frames (@ 60fps)
+    RECORD_VIDEO = False         # Record video
     
     print(f"\nConfiguration:")
     print(f"  Objects: {NUM_OBJECTS}")
@@ -65,8 +65,8 @@ def main():
     
     # Generate varied radii (lognormal distribution for natural variety)
     np.random.seed(42)  # For reproducibility
-    radii = np.random.lognormal(mean=-1.0, sigma=0.5, size=NUM_OBJECTS)
-    radii = np.clip(radii, 0.15, 0.8).astype(np.float32)
+    radii = np.random.lognormal(mean=-0.5, sigma=1.0, size=NUM_OBJECTS)
+    radii = np.clip(radii, 0.15, 0.65).astype(np.float32)
     
     print(f"  Radius range: {radii.min():.2f} - {radii.max():.2f} m")
     
@@ -93,11 +93,11 @@ def main():
         roll = np.random.random()
         if roll < 0.5:
             # 50% with downward velocity
-            velocities[i, 1] = np.random.uniform(-3, -1)
-        elif roll < 0.7:
-            # 20% with random velocity
-            velocities[i] = np.random.uniform(-2, 2, 3)
-        # 30% start at rest
+            velocities[i, 1] = np.random.uniform(-5, -1)
+        elif roll < 0.8:
+            # 30% with random velocity
+            velocities[i] = np.random.uniform(-5, 5, 3)
+        # 20% start at rest
     
     # Calculate masses (proportional to volume, with density variation)
     base_density = 1000.0  # kg/m³
@@ -108,7 +108,7 @@ def main():
     print(f"  Mass range: {masses.min():.2f} - {masses.max():.2f} kg")
     
     # Restitution coefficients (bounciness)
-    restitution = np.random.uniform(0.6, 0.9, NUM_OBJECTS).astype(np.float32)
+    restitution = np.random.uniform(0.7, 0.99, NUM_OBJECTS).astype(np.float32)
     
     # Initialize simulator state
     sim.bodies.positions[:] = cp.asarray(positions)
